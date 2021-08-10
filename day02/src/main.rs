@@ -10,28 +10,26 @@ pub fn main() {
     let file = File::open("./data/day02.txt").expect("cannot open");
     let reader = BufReader::new(file);
 
-    let mut num_valid = 0;
-    reader.lines().for_each(|l| {
-        let line = l.unwrap();
-        let parts: Vec<&str> = line.split(' ').collect();
-
-        let rule = parts[0];
-        let pattern = parts[1];
-        let password = parts[2];
-
-        if is_valid_qn2(rule, &pattern[0..1], password) {
-            num_valid += 1;
-        }
-    });
+    let num_valid = reader
+        .lines()
+        .map(Result::unwrap)
+        .map(|line| split_line(&line))
+        .filter(|(rule, pattern, password)| is_valid_qn1(rule, pattern, password))
+        .count();
 
     println!("{}", num_valid);
+}
+
+fn split_line(line: &str) -> (String, String, String) {
+    let mut parts = line.split(' ');
+    (parts.next().unwrap().to_owned(), parts.next().unwrap().to_owned(), parts.next().unwrap().to_owned())
 }
 
 fn is_valid_qn1(rule: &str, pattern: &str, password: &str) -> bool {
     let mut rule_splits = rule.split('-');
     let (min, max) = get_next_two(&mut rule_splits);
     let count = password.matches(pattern).count();
-    
+
     min <= count && count <= max
 }
 

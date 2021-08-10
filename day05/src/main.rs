@@ -1,29 +1,20 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+type SeatID = i32;
+
 pub fn main() {
-    qn1()
+    let path = "./src/input.txt";
+    qn1(path);
+    qn2(path);
 }
 
-pub fn qn2() {
-    let file = File::open("./data/day05.txt").expect("cannot open file");
+fn qn1(path: &str) {
+    let file = File::open(path).expect("cannot open file");
     let reader = BufReader::new(file);
-    let mut seats: Vec<i32> = reader
-        .lines()
-        .map(Result::unwrap)
-        .map(|seat| get_seat_id(&seat))
-        .collect();
 
-    let missing_seat = check_missing_seat(&mut seats);
-
-    println!("Missing seat: {}", missing_seat);
-}
-
-pub fn qn1() {
     let mut max_seat_id = 0;
 
-    let file = File::open("./data/day05.txt").expect("cannot open file");
-    let reader = BufReader::new(file);
     reader
         .lines()
         .map(Result::unwrap)
@@ -36,7 +27,22 @@ pub fn qn1() {
     println!("{}", max_seat_id);
 }
 
-fn get_seat_id(seat: &str) -> i32 {
+fn qn2(path: &str) {
+    let file = File::open(path).expect("cannot open file");
+    let reader = BufReader::new(file);
+
+    let mut seats: Vec<SeatID> = reader
+        .lines()
+        .map(Result::unwrap)
+        .map(|seat| get_seat_id(&seat))
+        .collect();
+
+    let missing_seat = find_missing_seat(&mut seats);
+
+    println!("Missing seat: {}", missing_seat);
+}
+
+fn get_seat_id(seat: &str) -> SeatID {
     let (mut min, mut max) = (0, 127);
     let (columns, rows) = seat.split_at(7);
 
@@ -65,12 +71,10 @@ fn get_seat_id(seat: &str) -> i32 {
     seat_row * 8 + seat_column
 }
 
-fn check_missing_seat(seats: &mut [i32]) -> i32 {
+// Brute force omg O(n)
+fn find_missing_seat(seats: &mut [SeatID]) -> SeatID {
     seats.sort_unstable();
     let (first, last) = (seats[0], seats[seats.len() - 1]);
-    // Brute force omg O(n)
-    // We can do better
-    // Let's do binary search
 
     for (seat_id, expected_seat_id) in seats.iter().zip(first..last) {
         if *seat_id != expected_seat_id {
@@ -86,7 +90,7 @@ mod tests {
 
     #[test]
     fn should_return_correct_missing_seat() {
-        assert_eq!(check_missing_seat(&mut [0, 1, 3]), 2);
+        assert_eq!(find_missing_seat(&mut [0, 1, 3]), 2);
     }
 
     #[test]

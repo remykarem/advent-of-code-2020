@@ -3,10 +3,6 @@ use std::io::{BufRead, BufReader};
 use std::str::Split;
 
 pub fn main() {
-    assert!(is_valid_qn1("1-3", "a", "abcde"));
-    assert!(!is_valid_qn1("1-3", "b", "cdefg"));
-    assert!(is_valid_qn1("2-9", "c", "ccccccccc"));
-
     let file = File::open("./data/day02.txt").expect("cannot open");
     let reader = BufReader::new(file);
 
@@ -22,7 +18,11 @@ pub fn main() {
 
 fn split_line(line: &str) -> (String, String, String) {
     let mut parts = line.split(' ');
-    (parts.next().unwrap().to_owned(), parts.next().unwrap().to_owned(), parts.next().unwrap().to_owned())
+    (
+        parts.next().unwrap().to_owned(),
+        parts.next().unwrap().to_owned(),
+        parts.next().unwrap().to_owned(),
+    )
 }
 
 fn is_valid_qn1(rule: &str, pattern: &str, password: &str) -> bool {
@@ -48,4 +48,16 @@ fn get_next_two(rule_splits: &mut Split<char>) -> (usize, usize) {
     let min = rule_splits.next().unwrap().parse::<usize>().unwrap();
     let max = rule_splits.next().unwrap().parse::<usize>().unwrap();
     (min, max)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        assert!(is_valid_qn1("1-3", "a", "abcde"));
+        assert!(!is_valid_qn1("1-3", "b", "cdefg"));
+        assert!(is_valid_qn1("2-9", "c", "ccccccccc"));
+    }
 }

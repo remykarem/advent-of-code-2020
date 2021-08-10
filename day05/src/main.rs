@@ -8,9 +8,9 @@ pub fn main() {
 pub fn qn2() {
     let file = File::open("./data/day05.txt").expect("cannot open file");
     let reader = BufReader::new(file);
-    let mut seats: Vec<usize> = reader
+    let mut seats: Vec<i32> = reader
         .lines()
-        .map(|line| line.unwrap())
+        .map(Result::unwrap)
         .map(|seat| get_seat_id(&seat))
         .collect();
 
@@ -24,17 +24,19 @@ pub fn qn1() {
 
     let file = File::open("./data/day05.txt").expect("cannot open file");
     let reader = BufReader::new(file);
-    reader.lines().for_each(|line| {
-        let seat = line.unwrap();
-        let seat_id = get_seat_id(&seat);
-        if seat_id > max_seat_id {
-            max_seat_id = seat_id;
-        };
-    });
+    reader
+        .lines()
+        .map(Result::unwrap)
+        .map(|seat| get_seat_id(&seat))
+        .for_each(|seat| {
+            if seat > max_seat_id {
+                max_seat_id = seat;
+            };
+        });
     println!("{}", max_seat_id);
 }
 
-fn get_seat_id(seat: &str) -> usize {
+fn get_seat_id(seat: &str) -> i32 {
     let (mut min, mut max) = (0, 127);
     let (columns, rows) = seat.split_at(7);
 
@@ -60,21 +62,16 @@ fn get_seat_id(seat: &str) -> usize {
 
     let seat_column = min;
 
-    let seat_id = seat_row * 8 + seat_column;
-
-    // println!("Row {} Col {}", seat_row, seat_column);
-
-    seat_id
+    seat_row * 8 + seat_column
 }
 
-fn check_missing_seat(seats: &mut [usize]) -> usize {
-    seats.sort();
+fn check_missing_seat(seats: &mut [i32]) -> i32 {
+    seats.sort_unstable();
     let (first, last) = (seats[0], seats[seats.len() - 1]);
-    // Brute force omg O(n) 
+    // Brute force omg O(n)
     // We can do better
     // Let's do binary search
 
-    let mid = (first + last) / 2;
     for (seat_id, expected_seat_id) in seats.iter().zip(first..last) {
         if *seat_id != expected_seat_id {
             return expected_seat_id;

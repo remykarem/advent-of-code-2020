@@ -1,0 +1,18 @@
+Program = _{ SOI ~ Rule ~ EOI }
+
+Rule = { MainBagDescription ~ "contain" ~ 
+		 (BagDescriptions | NonBagDescription) ~ "." }
+
+WHITESPACE = _{ " " | "\n" }
+
+Count = @{ ASCII_DIGIT+ }
+Colour = @{ ASCII_ALPHA+ }
+Pattern = @{ ASCII_ALPHA+ }
+BagLabel = @{ ("bags") | ("bag") }
+
+Adjectives = { Colour ~ Pattern }
+BagDescription = { Count ~ Adjectives ~ BagLabel }
+BagDescriptions = { BagDescription ~ ("," ~ BagDescription)* }
+MainBagDescription = { Adjectives ~ BagLabel }
+NonBagDescription = { "no other" ~ BagLabel }
+

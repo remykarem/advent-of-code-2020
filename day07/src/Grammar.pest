@@ -1,6 +1,6 @@
-Program = _{ SOI ~ Rule ~ EOI }
+Program = _{ SOI ~ Regulation ~ EOI }
 
-Rule = { MainBagDescription ~ "contain" ~ 
+Regulation = { MainBagDescription ~ "contain" ~ 
 		 (BagDescriptions | NonBagDescription) ~ "." }
 
 WHITESPACE = _{ " " | "\n" }

@@ -19,23 +19,23 @@ pub fn main() {
     let file = File::open("./src/input.txt").expect("cannot open file");
     let reader = BufReader::new(file);
 
-    let mut passport = String::from("");
+    let mut passport_buffer = String::from("");
     reader.lines().map(Result::unwrap).for_each(|line| {
         if line.is_empty() {
             // Process the buffer
-            if check_passport2(&passport) {
+            if check_passport2(&passport_buffer) {
                 num_valid += 1;
             }
-            passport.clear();
+            passport_buffer.clear();
         } else {
-            passport.push(' ');
-            passport.push_str(&line);
+            passport_buffer.push(' ');
+            passport_buffer.push_str(&line);
         }
     });
 
-    if check_passport2(&passport) {
+    if check_passport2(&passport_buffer) {
         num_valid += 1;
-        passport.clear();
+        passport_buffer.clear();
     }
 
     println!("{}", num_valid);
@@ -44,8 +44,8 @@ pub fn main() {
 fn check_passport(passport: &str) -> bool {
     let fields: HashSet<&str> = passport
         .split_whitespace()
-        .map(|field| (*field).split(DELIMITER).next().expect("problem"))
-        .filter(|field| *field != "cid")
+        .map(|field| field.split(DELIMITER).next().expect("problem"))
+        .filter(|&field| field != "cid")
         .collect();
     ALL_FIELDS.is_subset(&fields)
 }
@@ -55,7 +55,7 @@ fn check_passport2(passport: &str) -> bool {
 
     let fields = passport.split_whitespace();
     for field in fields {
-        let mut field_iter = (*field).split(DELIMITER);
+        let mut field_iter = field.split(DELIMITER);
         let field_label = field_iter.next().expect("problem");
         let field_value = field_iter.next().expect("problem");
 

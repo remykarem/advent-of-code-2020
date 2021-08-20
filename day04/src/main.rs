@@ -88,19 +88,19 @@ fn validate_byr(input: &str) -> bool {
 }
 fn validate_iyr(input: &str) -> bool {
     let year = input.parse::<i32>().unwrap();
-    year >= 2010 && year <= 2020
+    (2010..=2020).contains(&year)
 }
 fn validate_eyr(input: &str) -> bool {
     let year = input.parse::<i32>().unwrap();
-    year >= 2020 && year <= 2030
+    (2020..=2030).contains(&year)
 }
 fn validate_hgt(input: &str) -> bool {
     if input.ends_with("cm") {
         let height = input[0..input.len() - 2].parse::<i32>().unwrap();
-        height >= 150 && height <= 193
+        (150..=193).contains(&height)
     } else if input.ends_with("in") {
         let height = input[0..input.len() - 2].parse::<i32>().unwrap();
-        height >= 59 && height <= 76
+        (59..=76).contains(&height)
     } else {
         false
     }

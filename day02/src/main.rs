@@ -34,7 +34,7 @@ fn main() {
     let pairs: Vec<(PasswordPolicy, String)> = reader
         .lines()
         .map(Result::unwrap)
-        .map(|line| parse_policy_and_password(&line))
+        .map(parse_policy_and_password)
         .collect();
 
     let num_valid_part_1 = pairs
@@ -50,7 +50,7 @@ fn main() {
     println!("Part 2: {}", num_valid_part_2);
 }
 
-fn parse_policy_and_password(line: &str) -> (PasswordPolicy, String) {
+fn parse_policy_and_password(line: String) -> (PasswordPolicy, String) {
     let mut parts = line.split_whitespace();
     let rule = parts.next().unwrap().to_string();
     let pattern = parts.next().unwrap()[0..1].to_string();
@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let (policy, password) = parse_policy_and_password("2-8 h: hhqqvhhphhhqddhh");
+        let (policy, password) = parse_policy_and_password("2-8 h: hhqqvhhphhhqddhh".into());
         assert_eq!(
             policy,
             PasswordPolicy {

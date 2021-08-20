@@ -18,7 +18,7 @@ fn qn1(path: &str) {
     reader
         .lines()
         .map(Result::unwrap)
-        .map(|seat| get_seat_id(&seat))
+        .map(get_seat_id)
         .for_each(|seat| {
             if seat > max_seat_id {
                 max_seat_id = seat;
@@ -34,7 +34,7 @@ fn qn2(path: &str) {
     let mut seats: Vec<SeatID> = reader
         .lines()
         .map(Result::unwrap)
-        .map(|seat| get_seat_id(&seat))
+        .map(get_seat_id)
         .collect();
 
     let missing_seat = find_missing_seat(&mut seats);
@@ -42,7 +42,7 @@ fn qn2(path: &str) {
     println!("Missing seat: {}", missing_seat);
 }
 
-fn get_seat_id(seat: &str) -> SeatID {
+fn get_seat_id(seat: String) -> SeatID {
     let (mut min, mut max) = (0, 127);
     let (columns, rows) = seat.split_at(7);
 
@@ -95,9 +95,9 @@ mod tests {
 
     #[test]
     fn check_seat_ids() {
-        assert_eq!(get_seat_id("FBFBBFFRLR"), 357);
-        assert_eq!(get_seat_id("BFFFBBFRRR"), 567);
-        assert_eq!(get_seat_id("FFFBBBFRRR"), 119);
-        assert_eq!(get_seat_id("BBFFBBFRLL"), 820);
+        assert_eq!(get_seat_id("FBFBBFFRLR".into()), 357);
+        assert_eq!(get_seat_id("BFFFBBFRRR".into()), 567);
+        assert_eq!(get_seat_id("FFFBBBFRRR".into()), 119);
+        assert_eq!(get_seat_id("BBFFBBFRLL".into()), 820);
     }
 }

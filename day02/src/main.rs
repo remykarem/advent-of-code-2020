@@ -28,36 +28,26 @@ impl PasswordPolicy {
 }
 
 fn main() {
-    part1();
-    part2();
-}
-
-fn part1() {
     let file = File::open("./src/input.txt").expect("cannot open");
     let reader = BufReader::new(file);
 
-    let num_valid = reader
+    let pairs: Vec<(PasswordPolicy, String)> = reader
         .lines()
         .map(Result::unwrap)
         .map(|line| parse_policy_and_password(&line))
+        .collect();
+
+    let num_valid_part_1 = pairs
+        .iter()
         .filter(|(password_policy, password)| password_policy.validate_qn1(password))
         .count();
-
-    println!("Part 1: {}", num_valid);
-}
-
-fn part2() {
-    let file = File::open("./src/input.txt").expect("cannot open");
-    let reader = BufReader::new(file);
-
-    let num_valid = reader
-        .lines()
-        .map(Result::unwrap)
-        .map(|line| parse_policy_and_password(&line))
+    let num_valid_part_2 = pairs
+        .iter()
         .filter(|(password_policy, password)| password_policy.validate_qn2(password))
         .count();
 
-    println!("Part 2: {}", num_valid);
+    println!("Part 1: {}", num_valid_part_1);
+    println!("Part 2: {}", num_valid_part_2);
 }
 
 fn parse_policy_and_password(line: &str) -> (PasswordPolicy, String) {

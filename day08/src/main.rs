@@ -26,13 +26,10 @@ fn main() {
 
     let mut vm = VM::new(&program);
     let state = vm.exec_from(0);
-    match state {
-        Ok(()) => println!("{:?}", vm.acc),
-        Err(_) => {
-            println!("Part 1: {}", vm.acc);
-            vm.self_correct();
-            println!("Part 2: {}", vm.acc);
-        }
+    if state.is_err() {
+        println!("Part 1: {}", vm.acc);
+        vm.self_correct();
+        println!("Part 2: {}", vm.acc);
     }
 }
 
@@ -80,7 +77,7 @@ impl<'a> VM<'a> {
             }
             Jmp => new_ip = (new_ip as i32 + arg) as usize,
         }
-        
+
         new_ip
     }
     fn undo(&mut self) -> usize {
@@ -105,8 +102,8 @@ impl<'a> VM<'a> {
         while last_ip != self.program.len() {
             let new_ip = self.exec(last_ip);
             if self.visited.contains(&new_ip) {
-                // self.undo(); no undo will be made
-                // halts just before it executes an instruction that has already been executed
+                // No undo will be made. Program halts just before it executes
+                // an instruction that has previously been executed
                 return Err(last_ip);
             }
             last_ip = new_ip;
@@ -130,37 +127,40 @@ impl<'a> VM<'a> {
         }
     }
     fn self_correct(&mut self) {
-        // run this only after vm failed
+        // Run this only after vm failed
+        // DFS
 
         let mut res = Err(0); // dummy 0
 
         while res.is_err() {
+            // Go to the last jmp/nop instruction
             self.undo_until_last_jmp_or_nop();
 
-            // Change
+            // Pop this instruction
             let last_ip = self.undo();
             let (mnemonic, arg) = &self.program[last_ip];
 
+            // Create a snapshot of current state
             let snapshot = (self.acc, self.history.clone());
 
-            // exec 1 step
+            // Hack this instruction then manually move the ip
             let mut new_ip = last_ip;
             match mnemonic {
                 Jmp => new_ip += 1,
                 Nop => new_ip = (new_ip as i32 + arg) as usize,
                 _ => panic!("illegal state"),
             }
-            let len = self.history.len();
 
+            // Execute the edited instruction
             res = self.exec_from(new_ip);
 
             if res.is_err() {
-                // restore state
+                // Revert back to previous state
                 self.acc = snapshot.0;
                 self.history = snapshot.1;
             } else {
-                // this is the change we want!
-                self.history.insert(len, last_ip);
+                // This is the change we want!
+                self.history.insert(snapshot.1.len(), last_ip);
             }
         }
     }

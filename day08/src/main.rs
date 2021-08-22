@@ -67,18 +67,14 @@ impl<'a> VM<'a> {
         self.visited.insert(ip);
         let (mnemonic, arg) = &self.program[ip];
 
-        let mut new_ip = ip;
-
         match mnemonic {
-            Nop => new_ip += 1,
+            Nop => ip + 1,
             Acc => {
                 self.acc += arg;
-                new_ip += 1;
+                ip + 1
             }
-            Jmp => new_ip = (new_ip as i32 + arg) as usize,
+            Jmp => (ip as i32 + arg) as usize,
         }
-
-        new_ip
     }
     fn undo(&mut self) -> usize {
         // returns next pointer as of current state
@@ -111,18 +107,17 @@ impl<'a> VM<'a> {
         Ok(())
     }
     fn undo_until_last_jmp_or_nop(&mut self) {
-        let mut rollback = 0;
+        let mut rollbacks = 0;
 
-        for ip in self.history.iter().rev() {
-            let (mnemonic, _) = &self.program[*ip];
+        for &ip in self.history.iter().rev() {
+            let (mnemonic, _) = &self.program[ip];
             match mnemonic {
-                Acc => rollback += 1,
-                Nop => break,
-                Jmp => break,
+                Acc => rollbacks += 1,
+                _ => break,
             }
         }
 
-        for _ in 0..rollback {
+        for _ in 0..rollbacks {
             self.undo();
         }
     }
@@ -354,7 +349,7 @@ mod test {
 
     #[test]
     fn parse_test() {
-        let program: Program = [(Nop, 0), (Acc, 1)].to_vec();
+        let program: Program = vec![(Nop, 0), (Acc, 1)];
         let mut vm = VM::new(&program);
         assert!(vm.exec_from(0).is_ok());
         assert_eq!(vm.acc, 1);
@@ -362,7 +357,7 @@ mod test {
 
     #[test]
     fn parse_test_should_just_accumulate() {
-        let program: Program = [(Nop, 0), (Acc, 1_000_000), (Acc, 1_000_000)].to_vec();
+        let program: Program = vec![(Nop, 0), (Acc, 1_000_000), (Acc, 1_000_000)];
         let mut vm = VM::new(&program);
         assert!(vm.exec_from(0).is_ok());
         assert_eq!(vm.acc, 2_000_000);
@@ -370,7 +365,7 @@ mod test {
 
     #[test]
     fn parse_test_jump() {
-        let program: Program = [(Nop, 0), (Jmp, 2), (Acc, 1_000), (Acc, 1_000_000)].to_vec();
+        let program: Program = vec![(Nop, 0), (Jmp, 2), (Acc, 1_000), (Acc, 1_000_000)];
         let mut vm = VM::new(&program);
         assert!(vm.exec_from(0).is_ok());
         assert_eq!(vm.acc, 1_000_000);
@@ -378,7 +373,7 @@ mod test {
 
     #[test]
     fn parse_test2() {
-        let program: Program = [
+        let program: Program = vec![
             (Nop, 0),
             (Acc, 1),
             (Jmp, 4),
@@ -389,7 +384,7 @@ mod test {
             (Jmp, -4),
             (Acc, 6),
         ]
-        .to_vec();
+        ;
 
         let mut vm = VM::new(&program);
         assert!(vm.exec_from(0).is_err());

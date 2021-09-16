@@ -52,11 +52,13 @@ fn two_sum(sum: i32, nums: &[i32]) -> Option<HashSet<i32>> {
     None
 }
 
-fn three_sum(sum: i32, nums: &[i32]) -> Option<HashSet<i32>> {
+fn three_sum(sum: i32, nums: &[i32]) -> Option<i32> {
     let len = nums.len();
     if len < 3 {
         panic!("At least 3 items needed")
     }
+
+    let mut prod = 1;
 
     for (i, &context) in nums.iter().enumerate() {
         let mut candidates = HashSet::new();
